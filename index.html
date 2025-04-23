@@ -5,99 +5,166 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>План харчування</title>
 <style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+  h1 {
+    text-align: center;
+  }
+  nav {
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  nav button {
+    margin: 0 5px;
+    padding: 8px 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .hidden {
+    display: none;
+  }
+  .accordion {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .accordion summary {
+    background-color: #eee;
+    cursor: pointer;
+    padding: 10px;
+    font-weight: bold;
+    user-select: none;
+  }
+  .accordion details[open] summary {
+    background-color: #d4edda;
+  }
+  .category {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+  }
+  .food-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+  }
+  .food-item label {
+    flex-grow: 1;
+    cursor: pointer;
+  }
+  .selected-list, .journal-list {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .total {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 15px;
+    color: green;
+    text-align: center;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  table, th, td {
+    border: 1px solid #aaa;
+  }
+  th, td {
+    padding: 6px 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #eee;
+  }
+  #clear-journal-btn {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+  }
+  #clear-journal-btn:hover {
+    background-color: #c9302c;
+  }
+  @media (max-width: 480px) {
     body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 0 10px;
+      padding-left: 25px;
+      padding-right: 25px;
     }
-    h2 {
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
-    }
-    .category {
-      margin-bottom: 15px;
-    }
-    .food-item {
-      display: flex;
-      justify-content: space-between;
-      margin: 5px 0;
-    }
-    .food-item input {
-      margin-right: 10px;
-    }
-    .selected-list {
-      background: #f9f9f9;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    .total {
-      font-weight: bold;
-      font-size: 1.2em;
-      margin-top: 15px;
-      color: green;
-    }
-  
-    /* Мобільна адаптація */
-    @media (max-width: 480px) {
-      body {
-        padding-left: 25px;
-        padding-right: 25px;
-      }
-      h1 {
-        font-size: 1.6em;
-      }
-      h2 {
-        font-size: 1.3em;
-      }
-      h3 {
-        font-size: 1.1em;
-      }
-      .food-item label {
-        font-size: 0.9em;
-      }
-      .total {
-        font-size: 1.1em;
-      }
-    }
-  </style>
-  
+  }
+</style>
 </head>
 <body>
 
 <h1>План харчування</h1>
 
-<div id="meals-container"></div>
+<nav>
+  <button id="menu-planner">План харчування</button>
+  <button id="menu-journal">Журнал харчування</button>
+</nav>
 
-<h2>Вибрані продукти</h2>
-<div id="selected-products" class="selected-list">Нема вибраних продуктів.</div>
-<div class="total" id="total-calories">Загалом: 0 Ккал</div>
+<div id="planner-section">
+  <div id="meals-container"></div>
+
+  <h2>Вибрані продукти</h2>
+  <div id="selected-products" class="selected-list">Нема вибраних продуктів.</div>
+  <div class="total" id="total-calories">Загалом: 0 Ккал</div>
+
+  <button id="save-day-btn" style="margin-top:15px; padding:8px 12px;">Зберегти цей день</button>
+</div>
+
+<div id="journal-section" class="hidden">
+  <h2>Журнал харчування</h2>
+  <div id="journal-list" class="journal-list">Журнал порожній.</div>
+  <button id="clear-journal-btn">Очистити журнал</button>
+</div>
 
 <script>
-// Дані продуктів по прийомах їжі
+// Дані продуктів по прийомах їжі (як у тебе)
 const meals = [
   {
     title: "1-й прийом їжі",
     categories: [
       {
-        title: "Крупи та хліб",
+        title: "А",
         items: [
-          { name: "Картопля (100 г)", calories: 80 },
-          { name: "Бобові (30 г)", calories: 100 },
+          { name: "Бобові (30 г)", calories: 110 },
+          { name: "Картопля (100 г)", calories: 110 },
+          { name: "Кукурудза свіжа (100 г)", calories: 110 },
+          { name: "Рис (не шліфований) (30 г)", calories: 110 },
+          { name: "Будь-яка крупа (30 г)", calories: 110 },
+          { name: "Цільнозернове борошно (30 г)", calories: 110 },
           { name: "Хлібці (45 г)", calories: 110 },
+          { name: "Цільнозерновий хліб (50 г)", calories: 110 },
+          { name: "Макарони т.с. (30 г)", calories: 110 },
+          { name: "Лаваш (45 г) (~110 Ккал). ", calories: 110 },
         ]
       },
       {
-        title: "Молочне",
+        title: "Б",
         items: [
-          { name: "Кефір 1% (135 г)", calories: 65 },
-          { name: "Йогурт 1% (125 г)", calories: 60 },
+          { name: "Сир кисломолочний 0,2% жиру (70 г)", calories: 65 },
+          { name: "Сири м‘які, тверді, плавлені (17 г)", calories: 65  },
+          { name: "Сметана 15% (30 г)/ кефір 1% (135 г)", calories: 65  },
+          { name: "Несолодкий йогурт 1% жиру (125 г)", calories: 65  },
+          { name: "Молоко 1% (140 г) (~65 Ккал)", calories: 65  },
         ]
       },
       {
-        title: "Снеки/Солодощі",
+        title: "В",
         items: [
-          { name: "Будь-чого (90 г)", calories: 450 },
+          { name: "Будь-чого (90 г) (солодощі, снеки, ковбаса тощо)", calories: 450 },
         ]
       }
     ]
@@ -106,31 +173,45 @@ const meals = [
     title: "2-й прийом їжі",
     categories: [
       {
-        title: "Крупи",
+        title: "Г",
         items: [
-          { name: "Рис (30 г)", calories: 110 },
-          { name: "Макарони т.с. (30 г)", calories: 110 },
+          { name: "Бобові (30 г)", calories: 110 },
+          { name: "Картопля (100 г)", calories: 110 },
+          { name: "Кукурудза свіжа (100 г)", calories: 110 },
+          { name: "Рис (не шліфований) (30 г)", calories: 110 },
+          { name: "Будь-яка крупа (30 г)", calories: 110 },
+          { name: "Цільнозернове борошно (30 г)", calories: 110 },
+          { name: "Хлібці (45 г)/ цільнозерновий хліб (50 г)", calories: 110 },
+          { name: "Макарони т.с. (30 г)/ лаваш (45 г) (~110 Ккал)", calories: 110 },
         ]
       },
       {
-        title: "Білок",
+        title: "Д",
         items: [
-          { name: "Куряче філе (100 г)", calories: 120 },
-          { name: "Телятина (80 г)", calories: 130 },
+          { name: "Телятина (80 г)", calories: 105 },
+          { name: "Печінка (80 г)", calories: 105 },
+          { name: "Куряче або індиче філе (100 г)", calories: 105 },
+          { name: "Риба (до 5% жиру 120 г, від 5% 80 г)", calories: 105 },
+          { name: "2 яйця", calories: 105 },
+          { name: "Морепродукти (125 г)", calories: 105 },
         ]
       },
       {
-        title: "Овочі/Гриби",
+        title: "Е",
         items: [
-          { name: "Овочі", calories: 60 },
-          { name: "Гриби (300 г)", calories: 60 },
+          { name: "Овочі (квашені також і зелень)/ гриби (300 г)", calories: 60 },
         ]
       },
       {
-        title: "Жири",
+        title: "Є",
         items: [
-          { name: "Олія (7 г)", calories: 65 },
+          { name: "Будь -яка олія (7 г) (рекомендуємо лляну)/ майонез (9 г)", calories: 65 },
           { name: "Авокадо (40 г)", calories: 65 },
+          { name: "Оливки (55 г)", calories: 65 },
+          { name: "Гірчиця (20 г)", calories: 65 },
+          { name: "Кетчуп (30 г)", calories: 65 },
+          { name: "Масло (8 г)", calories: 65 },
+          { name: "Сало (10г)", calories: 65 },
         ]
       }
     ]
@@ -139,22 +220,21 @@ const meals = [
     title: "3-й прийом їжі",
     categories: [
       {
-        title: "Молочне",
+        title: "Ж",
         items: [
           { name: "Кисломолочний сир (115 г)", calories: 100 },
-          { name: "Йогурт 1% (205 г)", calories: 90 },
+          { name: "Сири м‘які, тверді, плавлені (25 г)", calories: 100 },
+          { name: "Сметана 15% (55 г)", calories: 100 },
+          { name: "Кефір 1% (215 г)", calories: 100 },
+          { name: "Несолодкий йогурт 1% жиру (205 г)", calories: 100 },
+          { name: "Молоко 1% (220 г)", calories: 100 },
         ]
       },
       {
-        title: "Фрукти/Ягоди",
+        title: "З",
         items: [
-          { name: "Фрукти (230 г)", calories: 150 },
-        ]
-      },
-      {
-        title: "Горіхи/Насіння",
-        items: [
-          { name: "Горіхи/насіння (8 г)", calories: 55 },
+          { name: "Фрукти (130 г)", calories: 60 },
+          { name: "Сухофрукти (35 г)", calories: 60 },
         ]
       }
     ]
@@ -163,110 +243,188 @@ const meals = [
     title: "4-й прийом їжі",
     categories: [
       {
-        title: "Білок",
+        title: "І",
         items: [
-          { name: "Куряче філе (100 г)", calories: 120 },
-          { name: "Риба (120 г)", calories: 130 },
-        ]
-      },
-      {
-        title: "Овочі",
-        items: [
-          { name: "Овочі", calories: 60 },
-          { name: "Гриби (300 г)", calories: 60 },
-        ]
-      },
-      {
-        title: "Жири",
-        items: [
-          { name: "Олія (7 г)", calories: 65 },
-          { name: "Авокадо (40 г)", calories: 65 },
+          { name: "Овочі (300 г)", calories: 60 },
+          { name: "Овочі (квашені також і зелень)/ гриби (300 г)", calories: 60 },
         ]
       }
     ]
   }
 ];
 
-// Збереження вибраних продуктів у Set, щоб не було дублікатів
-const selectedItems = new Set();
-
+// Логіка відображення та вибору продуктів
 const mealsContainer = document.getElementById('meals-container');
 const selectedProductsDiv = document.getElementById('selected-products');
 const totalCaloriesDiv = document.getElementById('total-calories');
+const saveDayBtn = document.getElementById('save-day-btn');
+const clearJournalBtn = document.getElementById('clear-journal-btn');
+
+let selectedProducts = []; // масив вибраних продуктів
 
 function renderMeals() {
   mealsContainer.innerHTML = '';
+  meals.forEach((meal, mealIdx) => {
+    const details = document.createElement('details');
+    details.classList.add('accordion');
+    if (mealIdx === 0) details.open = true;
 
-  meals.forEach((meal, mealIndex) => {
-    const mealDiv = document.createElement('div');
-    mealDiv.classList.add('meal');
+    const summary = document.createElement('summary');
+    summary.textContent = meal.title;
+    details.appendChild(summary);
 
-    const mealTitle = document.createElement('h2');
-    mealTitle.textContent = meal.title;
-    mealDiv.appendChild(mealTitle);
+    meal.categories.forEach(cat => {
+      const catDiv = document.createElement('div');
+      catDiv.className = 'category';
+      catDiv.innerHTML = `<strong>Категорія ${cat.title}</strong>`;
 
-    meal.categories.forEach(category => {
-      const categoryDiv = document.createElement('div');
-      categoryDiv.classList.add('category');
-
-      const categoryTitle = document.createElement('h3');
-      categoryTitle.textContent = category.title;
-      categoryDiv.appendChild(categoryTitle);
-
-      category.items.forEach(item => {
-        const itemDiv = document.createElement('div');
-        itemDiv.classList.add('food-item');
+      cat.items.forEach(item => {
+        const id = `meal${mealIdx}_cat${cat.title}_item${item.name.replace(/\s+/g, '')}`;
+        const label = document.createElement('label');
+        label.className = 'food-item';
+        label.htmlFor = id;
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = meal.title + '_' + category.title + '_' + item.name;
-        checkbox.checked = [...selectedItems].some(selected => selected.name === item.name);
-        checkbox.addEventListener('change', () => {
-          if (checkbox.checked) {
-            selectedItems.add(item);
-          } else {
-            selectedItems.forEach(selected => {
-              if (selected.name === item.name) selectedItems.delete(selected);
-            });
-          }
-          renderSelected();
-        });
+        checkbox.id = id;
+        checkbox.dataset.mealIdx = mealIdx;
+        checkbox.dataset.catTitle = cat.title;
+        checkbox.dataset.name = item.name;
+        checkbox.dataset.calories = item.calories;
 
-        const label = document.createElement('label');
-        label.htmlFor = checkbox.id;
-        label.textContent = `${item.name} (${item.calories} Ккал)`;
+        checkbox.addEventListener('change', onCheckboxChange);
 
-        itemDiv.appendChild(checkbox);
-        itemDiv.appendChild(label);
-        categoryDiv.appendChild(itemDiv);
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(`${item.name} (${item.calories} Ккал)`));
+
+        catDiv.appendChild(label);
       });
 
-      mealDiv.appendChild(categoryDiv);
+      details.appendChild(catDiv);
     });
 
-    mealsContainer.appendChild(mealDiv);
+    mealsContainer.appendChild(details);
   });
 }
 
-function renderSelected() {
-  if (selectedItems.size === 0) {
-    selectedProductsDiv.textContent = 'Нема вибраних продуктів.';
+function onCheckboxChange(e) {
+  const cb = e.target;
+  const product = {
+    mealIdx: parseInt(cb.dataset.mealIdx),
+    catTitle: cb.dataset.catTitle,
+    name: cb.dataset.name,
+    calories: Number(cb.dataset.calories),
+  };
+  if (cb.checked) {
+    selectedProducts.push(product);
   } else {
-    selectedProductsDiv.innerHTML = '';
-    selectedItems.forEach(item => {
-      const div = document.createElement('div');
-      div.textContent = `${item.name} — ${item.calories} Ккал`;
-      selectedProductsDiv.appendChild(div);
-    });
+    selectedProducts = selectedProducts.filter(p =>
+      !(p.mealIdx === product.mealIdx && p.catTitle === product.catTitle && p.name === product.name));
   }
-
-  const totalCalories = [...selectedItems].reduce((sum, item) => sum + item.calories, 0);
-  totalCaloriesDiv.textContent = `Загалом: ${totalCalories} Ккал`;
+  renderSelectedProducts();
 }
 
-// Ініціалізація
+function renderSelectedProducts() {
+  if (selectedProducts.length === 0) {
+    selectedProductsDiv.textContent = 'Нема вибраних продуктів.';
+    totalCaloriesDiv.textContent = 'Загалом: 0 Ккал';
+    return;
+  }
+  let html = '';
+  selectedProducts.forEach(p => {
+    html += `<div>${meals[p.mealIdx].title} | Категорія ${p.catTitle} | ${p.name} - ${p.calories} Ккал</div>`;
+  });
+  selectedProductsDiv.innerHTML = html;
+  const total = selectedProducts.reduce((sum, p) => sum + p.calories, 0);
+  totalCaloriesDiv.textContent = `Загалом: ${total} Ккал`;
+}
+
+// --- Збереження даних в журнал --- //
+const journalListDiv = document.getElementById('journal-list');
+
+function saveDay() {
+  if (selectedProducts.length === 0) {
+    alert('Оберіть продукти для збереження.');
+    return;
+  }
+  const today = new Date();
+  const dateKey = today.toISOString().split('T')[0];
+
+  let journal = JSON.parse(localStorage.getItem('foodJournal') || '{}');
+  journal[dateKey] = selectedProducts;
+  localStorage.setItem('foodJournal', JSON.stringify(journal));
+  alert(`Дані за ${dateKey} збережено.`);
+  renderJournal();
+}
+
+function renderJournal() {
+  const journal = JSON.parse(localStorage.getItem('foodJournal') || '{}');
+  if (Object.keys(journal).length === 0) {
+    journalListDiv.textContent = 'Журнал порожній.';
+    return;
+  }
+  let html = '';
+  for (const dateKey of Object.keys(journal).sort()) {
+    html += `<h3>${dateKey}</h3>`;
+
+    const dayData = journal[dateKey];
+    const grouped = {};
+    dayData.forEach(p => {
+      const mealName = meals[p.mealIdx].title;
+      if (!grouped[mealName]) grouped[mealName] = {};
+      if (!grouped[mealName][p.catTitle]) grouped[mealName][p.catTitle] = [];
+      grouped[mealName][p.catTitle].push(p);
+    });
+
+    for (const mealName in grouped) {
+      html += `<h4>${mealName}</h4>`;
+      for (const catTitle in grouped[mealName]) {
+        html += `<h5>Категорія ${catTitle}</h5>`;
+        html += `<table>
+          <thead>
+            <tr><th>Продукт</th><th>Калорії (Ккал)</th></tr>
+          </thead><tbody>`;
+        grouped[mealName][catTitle].forEach(p => {
+          html += `<tr><td>${p.name}</td><td>${p.calories}</td></tr>`;
+        });
+        html += `</tbody></table>`;
+      }
+    }
+  }
+  journalListDiv.innerHTML = html;
+}
+
+// Очищення журналу з підтвердженням
+function clearJournal() {
+  if (confirm('Ви впевнені, що хочете очистити весь журнал харчування? Цю дію не можна скасувати.')) {
+    localStorage.removeItem('foodJournal');
+    renderJournal();
+    alert('Журнал харчування очищено.');
+  }
+}
+
+// --- Перемикання між розділами --- //
+const plannerSection = document.getElementById('planner-section');
+const journalSection = document.getElementById('journal-section');
+document.getElementById('menu-planner').addEventListener('click', () => {
+  plannerSection.classList.remove('hidden');
+  journalSection.classList.add('hidden');
+});
+document.getElementById('menu-journal').addEventListener('click', () => {
+  renderJournal();
+  plannerSection.classList.add('hidden');
+  journalSection.classList.remove('hidden');
+});
+
+// Кнопка збереження
+saveDayBtn.addEventListener('click', saveDay);
+
+// Кнопка очищення журналу
+clearJournalBtn.addEventListener('click', clearJournal);
+
+// Початковий рендер
 renderMeals();
-renderSelected();
+renderSelectedProducts();
 </script>
 
 </body>
