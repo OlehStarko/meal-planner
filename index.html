@@ -6,15 +6,23 @@
 <title>План харчування</title>
 <style>
   .menu-planner{
-    width:180px;
+    width:185px;
     height: 48px;
     background-color:#0D86FF;
     border: none;
     border-radius: 8px;
     color: #ffffff;
   }
+  .save-day-btn{
+    width:185px;
+    height: 48px;
+    background-color:#05ae27;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+  }
   .menu-journal{
-    width:180px;
+    width:185px;
     height: 48px;
     background-color:#ff8e0d;
     border: none;
@@ -139,6 +147,11 @@
 
     margin-top: 10px;
   }
+  .visible-flex {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+}
   #clear-journal-btn:hover {
     background-color: #c9302c;
   }
@@ -155,7 +168,7 @@
 
 <h1>План харчування</h1>
 
-<nav>
+<nav style="display:flex;justify-content: center;">
   <button class="menu-planner" id="menu-planner">План харчування</button>
   <button class="menu-journal" id="menu-journal">Журнал харчування</button>
 </nav>
@@ -167,20 +180,20 @@
   <div id="selected-products" class="selected-list">Нема вибраних продуктів.</div>
   <div class="total" id="total-calories">Загалом: 0 Ккал</div>
 
-  <button id="save-day-btn" style="margin-top:15px; padding:8px 12px;">Зберегти цей день</button>
+  <button id="save-day-btn" class="save-day-btn">Зберегти цей день</button>
 </div>
 
-<div id="journal-section" class="hidden">
+<div id="journal-section" class="hidden" >
   <h2>Журнал харчування</h2>
   <div id="journal-list" class="journal-list">Журнал порожній.</div>
   <button id="clear-journal-btn">Очистити журнал</button>
 
-  <div style="margin-top: 15px;">
+  <div style="margin-top: 15px;display: flex;flex-direction: column;align-items: center;">
     <label for="export-day-select">Оберіть день для експорту:</label>
-    <select id="export-day-select">
+    <select id="export-day-select" style="margin-top: 15px;">
       <option value="">-- Виберіть день --</option>
     </select>
-    <button class="export-text-btn" id="export-text-btn" style="margin-left:10px; padding:8px 15px;">Експортувати текстом</button>
+    <button class="export-text-btn" id="export-text-btn" style="margin-top:20px;margin-left:10px; padding:8px 15px;">Експортувати текстом</button>
   </div>
 </div>
 
@@ -526,12 +539,15 @@ function clearJournal() {
 // Перемикання між секціями
 menuPlannerBtn.addEventListener('click', () => {
   plannerSection.classList.remove('hidden');
+  journalSection.classList.remove('visible-flex');
   journalSection.classList.add('hidden');
 });
 menuJournalBtn.addEventListener('click', () => {
   renderJournal();
+  updateExportDaySelect();
   plannerSection.classList.add('hidden');
   journalSection.classList.remove('hidden');
+  journalSection.classList.add('visible-flex');
 });
 
 // Експорт в текстовому форматі обраного дня
@@ -592,6 +608,89 @@ clearJournalBtn.addEventListener('click', clearJournal);
 // Початковий рендер
 renderMeals();
 renderSelectedProducts();
+function updateExportDayOptions() {
+    const savedDays = Object.keys(JSON.parse(localStorage.getItem('savedPlans') || '{}'));
+    const select = document.getElementById('export-day-select');
+    select.innerHTML = '';
+    savedDays.forEach(day => {
+        const option = document.createElement('option');
+        option.value = day;
+        option.textContent = day;
+        select.appendChild(option);
+    });
+}
+
+// Викликаємо після збереження нового дня
+document.getElementById('save-day').addEventListener('click', () => {
+    const day = document.getElementById('day-input').value.trim();
+    if (!day) return;
+
+    const savedPlans = JSON.parse(localStorage.getItem('savedPlans') || '{}');
+    const meals = {};
+    ['Сніданок', 'Обід', 'Полуденок', 'Вечеря'].forEach(meal => {
+        const items = Array.from(document.querySelectorAll(`#${meal.toLowerCase()} input[type="checkbox"]:checked`))
+                           .map(cb => cb.value);
+        meals[meal] = items;
+    });
+
+    savedPlans[day] = meals;
+    localStorage.setItem('savedPlans', JSON.stringify(savedPlans));
+
+    updateExportDayOptions(); // оновлюємо список днів
+    loadSavedDays(); // оновлюємо акордеон
+});
+
+// Експорт у файл або буфер
+document.getElementById('export-text').addEventListener('click', () => {
+    const selectedDay = document.getElementById('export-day-select').value;
+    if (!selectedDay) return;
+
+    const savedPlans = JSON.parse(localStorage.getItem('savedPlans') || '{}');
+    const dayData = savedPlans[selectedDay];
+
+    if (!dayData) return;
+
+    let exportText = `План харчування на день: ${selectedDay}\n\n`;
+    for (const meal in dayData) {
+        exportText += `${meal}:\n`;
+        dayData[meal].forEach(item => {
+            exportText += `- ${item}\n`;
+        });
+        exportText += '\n';
+    }
+
+    // Вибір дії
+    const doDownload = confirm("Натисни 'ОК' щоб завантажити .txt файл, або 'Скасувати' щоб скопіювати текст у буфер.");
+    
+    if (doDownload) {
+        const blob = new Blob([exportText], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `План_харчування_${selectedDay}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        navigator.clipboard.writeText(exportText)
+            .then(() => alert("Текст скопійовано в буфер обміну!"))
+            .catch(() => alert("Помилка при копіюванні."));
+    }
+});
+
+// Ініціалізація опцій при завантаженні сторінки
+document.addEventListener('DOMContentLoaded', updateExportDayOptions);
+function updateExportDaySelect() {
+  const journal = JSON.parse(localStorage.getItem('foodJournal') || '{}');
+  const dates = Object.keys(journal).sort();
+
+  exportDaySelect.innerHTML = '<option value="">-- Виберіть день --</option>';
+  dates.forEach(date => {
+    const option = document.createElement('option');
+    option.value = date;
+    option.textContent = date;
+    exportDaySelect.appendChild(option);
+  });
+}
 </script>
 
 </body>
