@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>План харчування</title>
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 10px;
+    }
+    h2 {
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .category {
+      margin-bottom: 15px;
+    }
+    .food-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+    .food-item input {
+      margin-right: 10px;
+    }
+    .selected-list {
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-top: 15px;
+      color: green;
+    }
+  
+    /* Мобільна адаптація */
+    @media (max-width: 480px) {
+      body {
+        padding-left: 25px;
+        padding-right: 25px;
+      }
+      h1 {
+        font-size: 1.6em;
+      }
+      h2 {
+        font-size: 1.3em;
+      }
+      h3 {
+        font-size: 1.1em;
+      }
+      .food-item label {
+        font-size: 0.9em;
+      }
+      .total {
+        font-size: 1.1em;
+      }
+    }
+  </style>
+  
+</head>
+<body>
+
+<h1>План харчування</h1>
+
+<div id="meals-container"></div>
+
+<h2>Вибрані продукти</h2>
+<div id="selected-products" class="selected-list">Нема вибраних продуктів.</div>
+<div class="total" id="total-calories">Загалом: 0 Ккал</div>
+
+<script>
+// Дані продуктів по прийомах їжі
+const meals = [
+  {
+    title: "1-й прийом їжі",
+    categories: [
+      {
+        title: "Крупи та хліб",
+        items: [
+          { name: "Картопля (100 г)", calories: 80 },
+          { name: "Бобові (30 г)", calories: 100 },
+          { name: "Хлібці (45 г)", calories: 110 },
+        ]
+      },
+      {
+        title: "Молочне",
+        items: [
+          { name: "Кефір 1% (135 г)", calories: 65 },
+          { name: "Йогурт 1% (125 г)", calories: 60 },
+        ]
+      },
+      {
+        title: "Снеки/Солодощі",
+        items: [
+          { name: "Будь-чого (90 г)", calories: 450 },
+        ]
+      }
+    ]
+  },
+  {
+    title: "2-й прийом їжі",
+    categories: [
+      {
+        title: "Крупи",
+        items: [
+          { name: "Рис (30 г)", calories: 110 },
+          { name: "Макарони т.с. (30 г)", calories: 110 },
+        ]
+      },
+      {
+        title: "Білок",
+        items: [
+          { name: "Куряче філе (100 г)", calories: 120 },
+          { name: "Телятина (80 г)", calories: 130 },
+        ]
+      },
+      {
+        title: "Овочі/Гриби",
+        items: [
+          { name: "Овочі", calories: 60 },
+          { name: "Гриби (300 г)", calories: 60 },
+        ]
+      },
+      {
+        title: "Жири",
+        items: [
+          { name: "Олія (7 г)", calories: 65 },
+          { name: "Авокадо (40 г)", calories: 65 },
+        ]
+      }
+    ]
+  },
+  {
+    title: "3-й прийом їжі",
+    categories: [
+      {
+        title: "Молочне",
+        items: [
+          { name: "Кисломолочний сир (115 г)", calories: 100 },
+          { name: "Йогурт 1% (205 г)", calories: 90 },
+        ]
+      },
+      {
+        title: "Фрукти/Ягоди",
+        items: [
+          { name: "Фрукти (230 г)", calories: 150 },
+        ]
+      },
+      {
+        title: "Горіхи/Насіння",
+        items: [
+          { name: "Горіхи/насіння (8 г)", calories: 55 },
+        ]
+      }
+    ]
+  },
+  {
+    title: "4-й прийом їжі",
+    categories: [
+      {
+        title: "Білок",
+        items: [
+          { name: "Куряче філе (100 г)", calories: 120 },
+          { name: "Риба (120 г)", calories: 130 },
+        ]
+      },
+      {
+        title: "Овочі",
+        items: [
+          { name: "Овочі", calories: 60 },
+          { name: "Гриби (300 г)", calories: 60 },
+        ]
+      },
+      {
+        title: "Жири",
+        items: [
+          { name: "Олія (7 г)", calories: 65 },
+          { name: "Авокадо (40 г)", calories: 65 },
+        ]
+      }
+    ]
+  }
+];
+
+// Збереження вибраних продуктів у Set, щоб не було дублікатів
+const selectedItems = new Set();
+
+const mealsContainer = document.getElementById('meals-container');
+const selectedProductsDiv = document.getElementById('selected-products');
+const totalCaloriesDiv = document.getElementById('total-calories');
+
+function renderMeals() {
+  mealsContainer.innerHTML = '';
+
+  meals.forEach((meal, mealIndex) => {
+    const mealDiv = document.createElement('div');
+    mealDiv.classList.add('meal');
+
+    const mealTitle = document.createElement('h2');
+    mealTitle.textContent = meal.title;
+    mealDiv.appendChild(mealTitle);
+
+    meal.categories.forEach(category => {
+      const categoryDiv = document.createElement('div');
+      categoryDiv.classList.add('category');
+
+      const categoryTitle = document.createElement('h3');
+      categoryTitle.textContent = category.title;
+      categoryDiv.appendChild(categoryTitle);
+
+      category.items.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('food-item');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = meal.title + '_' + category.title + '_' + item.name;
+        checkbox.checked = [...selectedItems].some(selected => selected.name === item.name);
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            selectedItems.add(item);
+          } else {
+            selectedItems.forEach(selected => {
+              if (selected.name === item.name) selectedItems.delete(selected);
+            });
+          }
+          renderSelected();
+        });
+
+        const label = document.createElement('label');
+        label.htmlFor = checkbox.id;
+        label.textContent = `${item.name} (${item.calories} Ккал)`;
+
+        itemDiv.appendChild(checkbox);
+        itemDiv.appendChild(label);
+        categoryDiv.appendChild(itemDiv);
+      });
+
+      mealDiv.appendChild(categoryDiv);
+    });
+
+    mealsContainer.appendChild(mealDiv);
+  });
+}
+
+function renderSelected() {
+  if (selectedItems.size === 0) {
+    selectedProductsDiv.textContent = 'Нема вибраних продуктів.';
+  } else {
+    selectedProductsDiv.innerHTML = '';
+    selectedItems.forEach(item => {
+      const div = document.createElement('div');
+      div.textContent = `${item.name} — ${item.calories} Ккал`;
+      selectedProductsDiv.appendChild(div);
+    });
+  }
+
+  const totalCalories = [...selectedItems].reduce((sum, item) => sum + item.calories, 0);
+  totalCaloriesDiv.textContent = `Загалом: ${totalCalories} Ккал`;
+}
+
+// Ініціалізація
+renderMeals();
+renderSelected();
+</script>
+
+</body>
+</html>
