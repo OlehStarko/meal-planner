@@ -34,12 +34,24 @@
     overflow: hidden;
   }
   .accordion summary {
-    background-color: #eee;
-    cursor: pointer;
-    padding: 10px;
-    font-weight: bold;
-    user-select: none;
-  }
+  background-color: #eee;
+  cursor: pointer;
+  padding: 10px;
+  font-weight: bold;
+  user-select: none;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 5px;
+}
+.accordion[open] summary {
+  background-color: #d4edda;
+}
+.journal-day-content {
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  background: #f9f9f9;
+}
   .accordion details[open] summary {
     background-color: #d4edda;
   }
@@ -57,12 +69,10 @@
     cursor: pointer;
   }
   .selected-list, .journal-list {
-    background: #f9f9f9;
-    padding: 10px;
-    border-radius: 5px;
-    max-height: 300px;
-    overflow-y: auto;
-  }
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 5px;
+}
   .total {
     font-weight: bold;
     font-size: 1.2em;
@@ -128,10 +138,18 @@
   <h2>Журнал харчування</h2>
   <div id="journal-list" class="journal-list">Журнал порожній.</div>
   <button id="clear-journal-btn">Очистити журнал</button>
+
+  <div style="margin-top: 15px;">
+    <label for="export-day-select">Оберіть день для експорту:</label>
+    <select id="export-day-select">
+      <option value="">-- Виберіть день --</option>
+    </select>
+    <button id="export-text-btn" style="margin-left:10px; padding:8px 15px;">Експортувати текстом</button>
+  </div>
 </div>
 
 <script>
-// Дані продуктів по прийомах їжі (як у тебе)
+// Дані продуктів по прийомах їжі
 const meals = [
   {
     title: "1-й прийом їжі",
@@ -223,18 +241,16 @@ const meals = [
         title: "Ж",
         items: [
           { name: "Кисломолочний сир (115 г)", calories: 100 },
-          { name: "Сири м‘які, тверді, плавлені (25 г)", calories: 100 },
-          { name: "Сметана 15% (55 г)", calories: 100 },
-          { name: "Кефір 1% (215 г)", calories: 100 },
-          { name: "Несолодкий йогурт 1% жиру (205 г)", calories: 100 },
-          { name: "Молоко 1% (220 г)", calories: 100 },
+          { name: "Сир твердий, м'який (30 г)", calories: 100 },
+          { name: "Яйце (1 шт.)", calories: 100 },
+          { name: "Молоко 1% (130 г)", calories: 100 },
+          { name: "Несолодкий йогурт 1% (125 г)", calories: 100 },
         ]
       },
       {
         title: "З",
         items: [
-          { name: "Фрукти (130 г)", calories: 60 },
-          { name: "Сухофрукти (35 г)", calories: 60 },
+          { name: "Будь-чого (солодощі, снеки, ковбаса тощо) (90 г)", calories: 430 },
         ]
       }
     ]
@@ -243,61 +259,113 @@ const meals = [
     title: "4-й прийом їжі",
     categories: [
       {
-        title: "І",
+        title: "И",
         items: [
-          { name: "Овочі (300 г)", calories: 60 },
-          { name: "Овочі (квашені також і зелень)/ гриби (300 г)", calories: 60 },
+          { name: "Бобові (30 г)", calories: 110 },
+          { name: "Картопля (100 г)", calories: 110 },
+          { name: "Кукурудза свіжа (100 г)", calories: 110 },
+          { name: "Рис (не шліфований) (30 г)", calories: 110 },
+          { name: "Будь-яка крупа (30 г)", calories: 110 },
+          { name: "Цільнозернове борошно (30 г)", calories: 110 },
+          { name: "Хлібці (45 г) / цільнозерновий хліб (50 г)", calories: 110 },
+          { name: "Макарони т.с. (30 г)/ лаваш (45 г) (~110 Ккал)", calories: 110 },
+        ]
+      },
+      {
+        title: "Й",
+        items: [
+          { name: "Сир кисломолочний 0,2% жиру (70 г)", calories: 65 },
+          { name: "Сири м‘які, тверді, плавлені (17 г)", calories: 65 },
+          { name: "Сметана 15% (30 г)/ кефір 1% (135 г)", calories: 65 },
+          { name: "Несолодкий йогурт 1% жиру (125 г)", calories: 65 },
+          { name: "Молоко 1% (140 г) (~65 Ккал)", calories: 65 },
+        ]
+      },
+      {
+        title: "К",
+        items: [
+          { name: "Будь-чого (90 г) (солодощі, снеки, ковбаса тощо)", calories: 450 },
         ]
       }
     ]
   }
 ];
 
-// Логіка відображення та вибору продуктів
+// Стан вибраних продуктів (масив об'єктів з mealIdx, catTitle, name, calories)
+let selectedProducts = [];
+
+// DOM елементи
 const mealsContainer = document.getElementById('meals-container');
 const selectedProductsDiv = document.getElementById('selected-products');
 const totalCaloriesDiv = document.getElementById('total-calories');
 const saveDayBtn = document.getElementById('save-day-btn');
+const journalSection = document.getElementById('journal-section');
+const plannerSection = document.getElementById('planner-section');
+const journalListDiv = document.getElementById('journal-list');
 const clearJournalBtn = document.getElementById('clear-journal-btn');
 
-let selectedProducts = []; // масив вибраних продуктів
+const menuPlannerBtn = document.getElementById('menu-planner');
+const menuJournalBtn = document.getElementById('menu-journal');
 
+const exportDaySelect = document.getElementById('export-day-select');
+const exportTextBtn = document.getElementById('export-text-btn');
+
+// Функція створення інтерфейсу для вибору продуктів
 function renderMeals() {
   mealsContainer.innerHTML = '';
   meals.forEach((meal, mealIdx) => {
     const details = document.createElement('details');
-    details.classList.add('accordion');
-    if (mealIdx === 0) details.open = true;
-
+    details.className = 'accordion';
     const summary = document.createElement('summary');
     summary.textContent = meal.title;
     details.appendChild(summary);
 
-    meal.categories.forEach(cat => {
+    meal.categories.forEach(category => {
       const catDiv = document.createElement('div');
       catDiv.className = 'category';
-      catDiv.innerHTML = `<strong>Категорія ${cat.title}</strong>`;
+      const catTitle = document.createElement('h4');
+      catTitle.textContent = `Категорія ${category.title}`;
+      catDiv.appendChild(catTitle);
 
-      cat.items.forEach(item => {
-        const id = `meal${mealIdx}_cat${cat.title}_item${item.name.replace(/\s+/g, '')}`;
+      category.items.forEach((item, itemIdx) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'food-item';
+
         const label = document.createElement('label');
-        label.className = 'food-item';
-        label.htmlFor = id;
+        label.textContent = `${item.name} (${item.calories} Ккал)`;
+        label.htmlFor = `chk_${mealIdx}_${category.title}_${itemIdx}`;
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = id;
-        checkbox.dataset.mealIdx = mealIdx;
-        checkbox.dataset.catTitle = cat.title;
-        checkbox.dataset.name = item.name;
-        checkbox.dataset.calories = item.calories;
+        checkbox.id = `chk_${mealIdx}_${category.title}_${itemIdx}`;
 
-        checkbox.addEventListener('change', onCheckboxChange);
+        // Встановлюємо стан чекбоксу відповідно до selectedProducts
+        const selected = selectedProducts.some(p =>
+          p.mealIdx === mealIdx &&
+          p.catTitle === category.title &&
+          p.name === item.name
+        );
+        checkbox.checked = selected;
 
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(`${item.name} (${item.calories} Ккал)`));
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            selectedProducts.push({
+              mealIdx,
+              catTitle: category.title,
+              name: item.name,
+              calories: item.calories
+            });
+          } else {
+            selectedProducts = selectedProducts.filter(p =>
+              !(p.mealIdx === mealIdx && p.catTitle === category.title && p.name === item.name)
+            );
+          }
+          renderSelectedProducts();
+        });
 
-        catDiv.appendChild(label);
+        itemDiv.appendChild(checkbox);
+        itemDiv.appendChild(label);
+        catDiv.appendChild(itemDiv);
       });
 
       details.appendChild(catDiv);
@@ -307,56 +375,67 @@ function renderMeals() {
   });
 }
 
-function onCheckboxChange(e) {
-  const cb = e.target;
-  const product = {
-    mealIdx: parseInt(cb.dataset.mealIdx),
-    catTitle: cb.dataset.catTitle,
-    name: cb.dataset.name,
-    calories: Number(cb.dataset.calories),
-  };
-  if (cb.checked) {
-    selectedProducts.push(product);
-  } else {
-    selectedProducts = selectedProducts.filter(p =>
-      !(p.mealIdx === product.mealIdx && p.catTitle === product.catTitle && p.name === product.name));
-  }
-  renderSelectedProducts();
-}
-
+// Відобразити вибрані продукти
 function renderSelectedProducts() {
   if (selectedProducts.length === 0) {
     selectedProductsDiv.textContent = 'Нема вибраних продуктів.';
     totalCaloriesDiv.textContent = 'Загалом: 0 Ккал';
     return;
   }
-  let html = '';
+
+  selectedProductsDiv.innerHTML = '';
+
+  const groupedByMeal = {};
   selectedProducts.forEach(p => {
-    html += `<div>${meals[p.mealIdx].title} | Категорія ${p.catTitle} | ${p.name} - ${p.calories} Ккал</div>`;
+    const mealName = meals[p.mealIdx].title;
+    if (!groupedByMeal[mealName]) groupedByMeal[mealName] = [];
+    groupedByMeal[mealName].push(p);
   });
-  selectedProductsDiv.innerHTML = html;
-  const total = selectedProducts.reduce((sum, p) => sum + p.calories, 0);
-  totalCaloriesDiv.textContent = `Загалом: ${total} Ккал`;
+
+  for (const mealName in groupedByMeal) {
+    const mealHeader = document.createElement('h4');
+    mealHeader.textContent = mealName;
+    selectedProductsDiv.appendChild(mealHeader);
+
+    groupedByMeal[mealName].forEach(p => {
+      const pDiv = document.createElement('div');
+      pDiv.textContent = `Категорія ${p.catTitle}: ${p.name} (${p.calories} Ккал)`;
+      selectedProductsDiv.appendChild(pDiv);
+    });
+  }
+
+  const totalCalories = selectedProducts.reduce((sum, p) => sum + p.calories, 0);
+  totalCaloriesDiv.textContent = `Загалом: ${totalCalories} Ккал`;
 }
 
-// --- Збереження даних в журнал --- //
-const journalListDiv = document.getElementById('journal-list');
-
+// Збереження дня в локальне сховище
 function saveDay() {
   if (selectedProducts.length === 0) {
-    alert('Оберіть продукти для збереження.');
+    alert('Оберіть хоча б один продукт, щоб зберегти день.');
     return;
   }
-  const today = new Date();
-  const dateKey = today.toISOString().split('T')[0];
+  const date = prompt('Введіть дату для збереження (формат YYYY-MM-DD):', new Date().toISOString().slice(0, 10));
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    alert('Неправильний формат дати.');
+    return;
+  }
 
   let journal = JSON.parse(localStorage.getItem('foodJournal') || '{}');
-  journal[dateKey] = selectedProducts;
-  localStorage.setItem('foodJournal', JSON.stringify(journal));
-  alert(`Дані за ${dateKey} збережено.`);
-  renderJournal();
+
+if (!journal[date]) {
+  journal[date] = [];
 }
 
+// Додаємо нові продукти, уникаючи дублювань, якщо потрібно
+journal[date] = journal[date].concat(selectedProducts);
+
+// Якщо хочете уникнути дублювань, можна зробити фільтрацію — скажіть, якщо потрібно
+
+localStorage.setItem('foodJournal', JSON.stringify(journal));
+
+}
+
+// Відобразити журнал
 function renderJournal() {
   const journal = JSON.parse(localStorage.getItem('foodJournal') || '{}');
   if (Object.keys(journal).length === 0) {
@@ -365,7 +444,11 @@ function renderJournal() {
   }
   let html = '';
   for (const dateKey of Object.keys(journal).sort()) {
-    html += `<h3>${dateKey}</h3>`;
+    html += `
+      <details class="accordion" ${dateKey === Object.keys(journal).sort()[0] ? 'open' : ''}>
+        <summary>${dateKey}</summary>
+        <div class="journal-day-content" style="padding: 10px;">
+    `;
 
     const dayData = journal[dateKey];
     const grouped = {};
@@ -390,36 +473,84 @@ function renderJournal() {
         html += `</tbody></table>`;
       }
     }
+    html += `</div></details>`;
   }
   journalListDiv.innerHTML = html;
 }
 
-// Очищення журналу з підтвердженням
+
+// Очистити журнал
 function clearJournal() {
-  if (confirm('Ви впевнені, що хочете очистити весь журнал харчування? Цю дію не можна скасувати.')) {
+  if (confirm('Ви впевнені, що хочете очистити весь журнал?')) {
     localStorage.removeItem('foodJournal');
     renderJournal();
-    alert('Журнал харчування очищено.');
   }
 }
 
-// --- Перемикання між розділами --- //
-const plannerSection = document.getElementById('planner-section');
-const journalSection = document.getElementById('journal-section');
-document.getElementById('menu-planner').addEventListener('click', () => {
+// Перемикання між секціями
+menuPlannerBtn.addEventListener('click', () => {
   plannerSection.classList.remove('hidden');
   journalSection.classList.add('hidden');
 });
-document.getElementById('menu-journal').addEventListener('click', () => {
+menuJournalBtn.addEventListener('click', () => {
   renderJournal();
   plannerSection.classList.add('hidden');
   journalSection.classList.remove('hidden');
 });
 
-// Кнопка збереження
-saveDayBtn.addEventListener('click', saveDay);
+// Експорт в текстовому форматі обраного дня
+exportTextBtn.addEventListener('click', () => {
+  const selectedDate = exportDaySelect.value;
+  if (!selectedDate) {
+    alert('Оберіть день для експорту.');
+    return;
+  }
 
-// Кнопка очищення журналу
+  const journal = JSON.parse(localStorage.getItem('foodJournal') || '{}');
+  const dayData = journal[selectedDate];
+  if (!dayData || dayData.length === 0) {
+    alert('За цей день немає даних для експорту.');
+    return;
+  }
+
+  let report = `Журнал харчування за день: ${selectedDate}\n\n`;
+
+  const grouped = {};
+  dayData.forEach(p => {
+    const mealName = meals[p.mealIdx].title;
+    if (!grouped[mealName]) grouped[mealName] = {};
+    if (!grouped[mealName][p.catTitle]) grouped[mealName][p.catTitle] = [];
+    grouped[mealName][p.catTitle].push(p);
+  });
+
+  for (const mealName in grouped) {
+    report += `${mealName}\n`;
+    for (const catTitle in grouped[mealName]) {
+      report += `  Категорія ${catTitle}:\n`;
+      grouped[mealName][catTitle].forEach(p => {
+        report += `    - ${p.name} (${p.calories} Ккал)\n`;
+      });
+    }
+    report += '\n';
+  }
+
+  const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `food_journal_${selectedDate}.txt`;
+  document.body.appendChild(a);
+  a.click();
+
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 0);
+});
+
+// Обробники
+saveDayBtn.addEventListener('click', saveDay);
 clearJournalBtn.addEventListener('click', clearJournal);
 
 // Початковий рендер
