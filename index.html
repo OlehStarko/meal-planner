@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>План харчування</title>
 <style>
+
   .menu-planner{
     width:185px;
     height: 48px;
@@ -20,6 +21,10 @@
     border: none;
     border-radius: 8px;
     color: #ffffff;
+ 
+   cursor: pointer;
+   font-weight: bold; margin: 0 auto;
+   display: block;
   }
   .menu-journal{
     width:185px;
@@ -46,6 +51,7 @@
     max-width: 600px;
     margin: 20px auto;
     padding: 0 10px;
+    background-color: #FBFBFE;
    
    
   }
@@ -58,7 +64,7 @@
     text-align: center;
   }
   nav button {
-    margin: 0 5px;
+    margin: 0 0px;
     padding: 8px 15px;
     font-weight: bold;
     cursor: pointer;
@@ -67,18 +73,19 @@
     display: none;
   }
   .accordion {
-    border: 1px solid #ccc;
+    border: none;
     border-radius: 6px;
     margin-bottom: 10px;
     overflow: hidden;
   }
   .accordion summary {
-  background-color: #eee;
+  background-color: #E7E7F3;
   cursor: pointer;
-  padding: 10px;
-  font-weight: bold;
+  padding: 16px;
+  padding-left: 20px;
+  
   user-select: none;
-  border: 1px solid #ccc;
+  border: none;
   border-radius: 6px;
   margin-bottom: 5px;
 }
@@ -86,7 +93,7 @@
   background-color: #d4edda;
 }
 .journal-day-content {
-  border: 1px solid #ccc;
+  border: none;
   border-top: none;
   border-radius: 0 0 6px 6px;
   background: #f9f9f9;
@@ -102,6 +109,7 @@
     display: flex;
     justify-content: space-between;
     margin: 5px 0;
+
   }
   .food-item label {
     flex-grow: 1;
@@ -109,7 +117,7 @@
   }
   .selected-list, .journal-list {
   background: #f9f9f9;
-  padding: 10px;
+  padding:  10px  0px 10px 0px;
   border-radius: 5px;
 }
   .total {
@@ -118,6 +126,7 @@
     margin-top: 15px;
     color: green;
     text-align: center;
+    margin-bottom: 20px;
   }
   table {
     width: 100%;
@@ -168,7 +177,7 @@
 
 <h1>План харчування</h1>
 
-<nav style="display:flex;justify-content: center;">
+<nav style="display:flex;justify-content: space-between">
   <button class="menu-planner" id="menu-planner">План харчування</button>
   <button class="menu-journal" id="menu-journal">Журнал харчування</button>
 </nav>
