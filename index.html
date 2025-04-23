@@ -5,14 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>План харчування</title>
 <style>
+  .menu-planner{
+    width:180px;
+    height: 48px;
+    background-color:#0D86FF;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+  }
+  .menu-journal{
+    width:180px;
+    height: 48px;
+    background-color:#ff8e0d;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+  }
+  .export-text-btn{
+    width:180px;
+    height: 48px;
+    background-color:#05ae27;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    cursor: pointer;
+  }
+  #export-text-btn:hover {
+    background-color: #069021;
+  }
   body {
     font-family: Arial, sans-serif;
     max-width: 600px;
     margin: 20px auto;
     padding: 0 10px;
+   
+   
   }
   h1 {
     text-align: center;
+
   }
   nav {
     margin-bottom: 15px;
@@ -98,10 +129,14 @@
   #clear-journal-btn {
     background-color: #d9534f;
     color: white;
+    width:180px;
+    height: 48px;
+  
     border: none;
-    padding: 8px 15px;
+    border-radius: 8px;
+    color: #ffffff;
     cursor: pointer;
-    border-radius: 4px;
+
     margin-top: 10px;
   }
   #clear-journal-btn:hover {
@@ -113,6 +148,7 @@
       padding-right: 25px;
     }
   }
+  
 </style>
 </head>
 <body>
@@ -120,8 +156,8 @@
 <h1>План харчування</h1>
 
 <nav>
-  <button id="menu-planner">План харчування</button>
-  <button id="menu-journal">Журнал харчування</button>
+  <button class="menu-planner" id="menu-planner">План харчування</button>
+  <button class="menu-journal" id="menu-journal">Журнал харчування</button>
 </nav>
 
 <div id="planner-section">
@@ -144,7 +180,7 @@
     <select id="export-day-select">
       <option value="">-- Виберіть день --</option>
     </select>
-    <button id="export-text-btn" style="margin-left:10px; padding:8px 15px;">Експортувати текстом</button>
+    <button class="export-text-btn" id="export-text-btn" style="margin-left:10px; padding:8px 15px;">Експортувати текстом</button>
   </div>
 </div>
 
