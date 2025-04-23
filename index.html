@@ -232,9 +232,10 @@ const meals = [
         items: [
           { name: "Сир кисломолочний 0,2% жиру (70 г)", calories: 65 },
           { name: "Сири м‘які, тверді, плавлені (17 г)", calories: 65  },
-          { name: "Сметана 15% (30 г)/ кефір 1% (135 г)", calories: 65  },
+          { name: "Сметана 15% (30 г)", calories: 65  },
+          { name: "Кефір 1% (135 г)", calories: 65  },
           { name: "Несолодкий йогурт 1% жиру (125 г)", calories: 65  },
-          { name: "Молоко 1% (140 г) (~65 Ккал)", calories: 65  },
+          { name: "Молоко 1% (140 г)", calories: 65  },
         ]
       },
       {
@@ -257,8 +258,10 @@ const meals = [
           { name: "Рис (не шліфований) (30 г)", calories: 110 },
           { name: "Будь-яка крупа (30 г)", calories: 110 },
           { name: "Цільнозернове борошно (30 г)", calories: 110 },
-          { name: "Хлібці (45 г)/ цільнозерновий хліб (50 г)", calories: 110 },
-          { name: "Макарони т.с. (30 г)/ лаваш (45 г) (~110 Ккал)", calories: 110 },
+          { name: "Хлібці (45 г)", calories: 110 },
+          { name: "Цільнозерновий хліб (50 г)", calories: 110 },
+          { name: "Макарони т.с. (30 г)", calories: 110 },
+          { name: "Лаваш (45 г) (~110 Ккал)", calories: 110 },
         ]
       },
       {
@@ -281,7 +284,8 @@ const meals = [
       {
         title: "Є",
         items: [
-          { name: "Будь -яка олія (7 г) (рекомендуємо лляну)/ майонез (9 г)", calories: 65 },
+          { name: "Будь -яка олія (7 г) (рекомендуємо лляну)", calories: 65 },
+          { name: "Майонез (9 г)", calories: 65 },
           { name: "Авокадо (40 г)", calories: 65 },
           { name: "Оливки (55 г)", calories: 65 },
           { name: "Гірчиця (20 г)", calories: 65 },
@@ -298,17 +302,24 @@ const meals = [
       {
         title: "Ж",
         items: [
-          { name: "Кисломолочний сир (115 г)", calories: 100 },
-          { name: "Сир твердий, м'який (30 г)", calories: 100 },
-          { name: "Яйце (1 шт.)", calories: 100 },
-          { name: "Молоко 1% (130 г)", calories: 100 },
-          { name: "Несолодкий йогурт 1% (125 г)", calories: 100 },
+          { name: "Сир кисломолочний 0,2% жиру (115 г)", calories: 100 },
+          { name: "Сири м‘які, тверді, плавлені (25 г)", calories: 100 },
+          { name: "Сметана 15% (55 г)", calories: 100 },
+          { name: "Кефір 1% (215 г)", calories: 100 },
+          { name: "Несолодкий йогурт 1% (205 г)", calories: 100 },
+          { name: "Молоко 1% (220 г)", calories: 100 },
         ]
       },
       {
         title: "З",
         items: [
-          { name: "Будь-чого (солодощі, снеки, ковбаса тощо) (90 г)", calories: 430 },
+          { name: "Фрукти та ягоди (230 г) (якщо це банани, виноград, хурма, то 140 г)", calories: 150 },
+        ]
+      },
+      {
+        title: "И",
+        items: [
+          { name: "Будь-які горіхи (рекомендуємо грецькі) або насіння (8 г)", calories: 55 },
         ]
       }
     ]
@@ -317,32 +328,34 @@ const meals = [
     title: "4-й прийом їжі",
     categories: [
       {
-        title: "И",
+        title: "І",
         items: [
-          { name: "Бобові (30 г)", calories: 110 },
-          { name: "Картопля (100 г)", calories: 110 },
-          { name: "Кукурудза свіжа (100 г)", calories: 110 },
-          { name: "Рис (не шліфований) (30 г)", calories: 110 },
-          { name: "Будь-яка крупа (30 г)", calories: 110 },
-          { name: "Цільнозернове борошно (30 г)", calories: 110 },
-          { name: "Хлібці (45 г) / цільнозерновий хліб (50 г)", calories: 110 },
-          { name: "Макарони т.с. (30 г)/ лаваш (45 г) (~110 Ккал)", calories: 110 },
+        { name: "Телятина (80 г)", calories: 105 },
+          { name: "Печінка (80 г)", calories: 105 },
+          { name: "Куряче або індиче філе (100 г)", calories: 105 },
+          { name: "Риба (до 5% жиру 120 г, від 5% 80 г)", calories: 105 },
+          { name: "2 яйця", calories: 105 },
+          { name: "Морепродукти (125 г)", calories: 105 },
+        ]
+      },
+      {
+        title: "Ї",
+        items: [
+          { name: "Овочі (квашені також і зелень)/ гриби (300 г)", calories: 60 },
+
         ]
       },
       {
         title: "Й",
         items: [
-          { name: "Сир кисломолочний 0,2% жиру (70 г)", calories: 65 },
-          { name: "Сири м‘які, тверді, плавлені (17 г)", calories: 65 },
-          { name: "Сметана 15% (30 г)/ кефір 1% (135 г)", calories: 65 },
-          { name: "Несолодкий йогурт 1% жиру (125 г)", calories: 65 },
-          { name: "Молоко 1% (140 г) (~65 Ккал)", calories: 65 },
-        ]
-      },
-      {
-        title: "К",
-        items: [
-          { name: "Будь-чого (90 г) (солодощі, снеки, ковбаса тощо)", calories: 450 },
+        { name: "Будь -яка олія (7 г) (рекомендуємо лляну)", calories: 65 },
+          { name: "Майонез (9 г)", calories: 65 },
+          { name: "Авокадо (40 г)", calories: 65 },
+          { name: "Оливки (55 г)", calories: 65 },
+          { name: "Гірчиця (20 г)", calories: 65 },
+          { name: "Кетчуп (30 г)", calories: 65 },
+          { name: "Масло (8 г)", calories: 65 },
+          { name: "Сало (10г)", calories: 65 },
         ]
       }
     ]
@@ -531,6 +544,9 @@ function renderJournal() {
         html += `</tbody></table>`;
       }
     }
+    
+    html += `<p style="font-weight:bold; color:green; text-align:center; margin-top:10px;">Сума калорій за день: ${dayData.reduce((sum, p) => sum + p.calories, 0)} Ккал</p>`;
+
     html += `</div></details>`;
   }
   journalListDiv.innerHTML = html;
